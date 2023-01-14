@@ -41,9 +41,7 @@ fn main() -> eyre::Result<()> {
         .flag("-Wno-non-template-friend") // Hide warnings about non-template friend function declarations
         .flag("-pthread")
         .flag("-maes")
-        .flag("-mpclmul")
         .flag("-msse4.1")
-        .flag("-mavx")
         // .flag("-march=native")
         .flag("-funroll-loops")
         .flag("-fverbose-asm");

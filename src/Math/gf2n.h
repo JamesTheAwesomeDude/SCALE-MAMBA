@@ -496,6 +496,7 @@ inline int128 int128::operator>>(const int &other) const
   return res;
 }
 
+__attribute__ ((target ("avx,pclmul"))) // For Intel Sandy Bridge (and newer), and AMD Bulldozer (and newer)
 inline void mul128(__m128i a, __m128i b, __m128i *res1, __m128i *res2)
 {
   __m128i tmp3, tmp4, tmp5, tmp6;
@@ -513,6 +514,35 @@ inline void mul128(__m128i a, __m128i b, __m128i *res1, __m128i *res2)
   // initial mul now in tmp3, tmp6
   *res1= tmp3;
   *res2= tmp6;
+}
+
+__attribute__ ((target ("sse4.1")))  // For Intel Nehalem (and Westmere), and AMD 10h/K10
+inline void mul128(__m128i a, __m128i b, __m128i *res1, __m128i *res2)
+{
+  __m128i tmp3, tmp4, tmp5, tmp6;
+
+  tmp3 = _mm_mul_epu32(a, b);
+
+  tmp4 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4));
+  tmp5 = _mm_mul_epu32(a, _mm_srli_si128(b, 4));
+  tmp6 = _mm_mul_epu32(_mm_srli_si128(a, 4), b);
+
+  tmp4 = _mm_xor_si128(tmp4, tmp5);
+  tmp5 = _mm_slli_si128(tmp4, 8);
+
+  tmp4 = _mm_srli_si128(tmp4, 8);
+
+  tmp3 = _mm_xor_si128(tmp3, tmp5);
+  tmp6 = _mm_xor_si128(tmp6, tmp4);
+
+  *res1 = tmp3;
+  *res2 = tmp6;
+}
+
+__attribute__ ((target ("default")))  // Not currently supported: non-x86 CPUs, and x86 CPUs manufactured before 2007
+inline void mul128(__m128i a, __m128i b, __m128i *res1, __m128i *res2)
+{
+  abort();
 }
 
 #endif /* MATH_GF2N_H_ */

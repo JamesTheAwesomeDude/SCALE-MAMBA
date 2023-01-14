@@ -17,9 +17,7 @@ add_definitions(-DMAX_MOD_SZ=7)
 add_definitions(-DMAX_GFP_SZ=2)
 add_compile_options(
         -maes
-        -mpclmul
         -msse4.1
-        -mavx
         -march=core2
 )
 
